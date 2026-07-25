@@ -85,7 +85,6 @@
             justify-content: center;
             max-width: 800px;
             padding: 20px;
-            /* Efek Animasi Muncul Lembut untuk Kontainer Menu */
             animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         .card {
@@ -110,7 +109,6 @@
             object-fit: cover;
             background-color: #333;
             display: none; 
-            /* Efek Animasi Lembut untuk Gambar saat Terbuka */
             animation: fadeIn 0.4s ease forwards;
         }
         .card p {
@@ -143,30 +141,17 @@
             background-color: #444;
         }
 
-        /* Definisi Animasi CSS Keyframes */
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -207,6 +192,10 @@
         const visitorBar = document.getElementById('visitorBar');
         const backBtn = document.getElementById('backBtn');
 
+        // Menyiapkan file efek suara dari aset internet publik
+        const hornSound = new Audio('https://mixkit.co'); // Suara Trompet Kartun
+        const coinSound = new Audio('https://mixkit.co');   // Suara Koin Sukses
+
         startBtn.addEventListener('click', () => {
             startBtn.style.display = 'none';
             optionsMenu.style.display = 'flex';
@@ -216,6 +205,10 @@
         updateVisitorDisplay();
 
         function triggerOption(cardElement, optionName, budgetInfo) {
+            // Mainkan suara trompet pesta saat menu ditekan
+            hornSound.currentTime = 0;
+            hornSound.play().catch(e => console.log("Izin audio browser dibutuhkan"));
+
             const img = cardElement.querySelector('img');
             const budget = cardElement.querySelector('.budget-text');
             img.style.display = 'block';
@@ -229,6 +222,10 @@
                 }
 
                 if (name) {
+                    // Mainkan suara koin sukses (ding!) saat input nama berhasil disimpan
+                    coinSound.currentTime = 0;
+                    coinSound.play().catch(e => console.log("Izin audio browser dibutuhkan"));
+
                     participants.push({
                         name: name.trim(),
                         option: optionName
