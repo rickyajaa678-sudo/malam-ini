@@ -135,14 +135,11 @@
             background-color: #444;
         }
     </style>
-    <!-- Firebase SDK Klasik -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
 </head>
 <body>
 
     <div class="visitor-bar" id="visitorBar">
-        <span>👥 Peserta yang ikut: Menghubungkan server...</span>
+        <span>👥 Peserta yang ikut: Belum ada</span>
     </div>
 
     <h1 id="title">MALAM INI MAU KEMANA?</h1>
@@ -171,21 +168,6 @@
     <button class="back-btn" id="backBtn">Pilih Lagi</button>
 
     <script>
-        // Menggunakan alamat database original asia-southeast1 yang valid
-        const firebaseConfig = {
-            apiKey: "AIzaSyA_l7yr43VChZHOTAUSFUgmqpQzApwQFWM",
-            authDomain: "://firebaseapp.com",
-            databaseURL: "https://firebasedatabase.app",
-            projectId: "malam-ini-4cd0f",
-            storageBucket: "://appspot.com",
-            messagingSenderId: "787128930003",
-            appId: "1:787128930003:web:fb89b68607d62710f94e26"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const participantsRef = database.ref('participants');
-
         const startBtn = document.getElementById('startBtn');
         const optionsMenu = document.getElementById('optionsMenu');
         const visitorBar = document.getElementById('visitorBar');
@@ -195,6 +177,9 @@
             startBtn.style.display = 'none';
             optionsMenu.style.display = 'flex';
         });
+
+        let participants = JSON.parse(localStorage.getItem('malamIniParticipants')) || [];
+        updateVisitorDisplay();
 
         function triggerOption(cardElement, optionName, budgetInfo) {
             const img = cardElement.querySelector('img');
@@ -210,26 +195,27 @@
                 }
 
                 if (name) {
-                    participantsRef.push({
+                    participants.push({
                         name: name.trim(),
                         option: optionName
                     });
+                    
+                    localStorage.setItem('malamIniParticipants', JSON.stringify(participants));
+                    updateVisitorDisplay();
+                    
                     backBtn.style.display = 'inline-block';
                 }
             }, 300);
         }
 
-        participantsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) {
+        function updateVisitorDisplay() {
+            if (participants.length === 0) {
                 visitorBar.innerHTML = '<span>👥 Peserta yang ikut: Belum ada</span>';
                 return;
             }
 
             visitorBar.innerHTML = '<span>👥 Peserta yang ikut: </span>';
-            Object.keys(data).forEach((key) => {
-                const p = data[key];
-                
+            participants.forEach((p, index) => {
                 const tag = document.createElement('span');
                 tag.className = 'visitor-tag';
                 tag.textContent = `${p.name} (${p.option}) `;
@@ -240,14 +226,16 @@
                 delBtn.onclick = function(e) {
                     e.stopPropagation();
                     if (confirm(`Hapus nama "${p.name}" dari daftar?`)) {
-                        database.ref('participants/' + key).remove();
+                        participants.splice(index, 1);
+                        localStorage.setItem('malamIniParticipants', JSON.stringify(participants));
+                        updateVisitorDisplay();
                     }
                 };
                 
                 tag.appendChild(delBtn);
                 visitorBar.appendChild(tag);
             });
-        });
+        }
 
         backBtn.addEventListener('click', () => {
             optionsMenu.style.display = 'none';
