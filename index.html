@@ -152,21 +152,21 @@
     <div class="options-container" id="optionsMenu">
         
         <!-- Pilihan 1: Pergi Makan -->
-        <div class="card" onclick="selectOption(this, 'Pergi Makan', 'Min. Budget: 100.000 Riel')">
+        <div class="card" id="makanCard">
             <img src="pergi makan.png" alt="Pergi Makan">
             <p>Pergi Makan 🍔</p>
             <div class="budget-text">Min. Budget: 100.000 Riel</div>
         </div>
 
         <!-- Pilihan 2: Pergi Minum -->
-        <div class="card" onclick="selectOption(this, 'Pergi Minum', 'Budget: 250.000 - 300.000 Riel')">
+        <div class="card" id="minumCard">
             <img src="MINUM.png" alt="Pergi Minum">
             <p>Pergi Minum 🥂</p>
             <div class="budget-text">Budget: 250.000 - 300.000 Riel</div>
         </div>
 
         <!-- Pilihan 3: Pergi Ngewe -->
-        <div class="card" onclick="selectOption(this, 'Pergi Ngewe', 'Min. Budget: 400.000 Riel')">
+        <div class="card" id="ngeweCard">
             <img src="NGEWE.webp" alt="Pergi Ngewe">
             <p>Pergi Ngewe 😈</p>
             <div class="budget-text">Min. Budget: 400.000 Riel</div>
@@ -176,12 +176,11 @@
 
     <button class="back-btn" id="backBtn">Pilih Lagi</button>
 
-    <!-- Import Firebase Modules dari CDN -->
+    <!-- Import Firebase Modules -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
         import { getDatabase, ref, push, onValue, remove } from "https://gstatic.com";
 
-        // Konfigurasi Firebase sesuai data milik Anda
         const firebaseConfig = {
             apiKey: "AIzaSyA_l7yr43VChZHOTAUSFUgmqpQzApwQFWM",
             authDomain: "://firebaseapp.com",
@@ -193,7 +192,6 @@
             measurementId: "G-T5D9TS30YP"
         };
 
-        // Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const participantsRef = ref(db, 'participants');
@@ -203,14 +201,24 @@
         const visitorBar = document.getElementById('visitorBar');
         const backBtn = document.getElementById('backBtn');
 
-        // Tampilkan pilihan menu awal
+        // Fungsi klik tombol utama KLIK DI SINI
         startBtn.addEventListener('click', () => {
             startBtn.style.display = 'none';
             optionsMenu.style.display = 'flex';
         });
 
-        // Handler klik opsi menu
-        window.selectOption = function(cardElement, optionName, budgetInfo) {
+        // Hubungkan fungsi klik ke setiap kartu
+        document.getElementById('makanCard').addEventListener('click', function() {
+            triggerOption(this, 'Pergi Makan', 'Min. Budget: 100.000 Riel');
+        });
+        document.getElementById('minumCard').addEventListener('click', function() {
+            triggerOption(this, 'Pergi Minum', 'Budget: 250.000 - 300.000 Riel');
+        });
+        document.getElementById('ngeweCard').addEventListener('click', function() {
+            triggerOption(this, 'Pergi Ngewe', 'Min. Budget: 400.000 Riel');
+        });
+
+        function triggerOption(cardElement, optionName, budgetInfo) {
             const img = cardElement.querySelector('img');
             const budget = cardElement.querySelector('.budget-text');
             img.style.display = 'block';
@@ -224,18 +232,16 @@
                 }
 
                 if (name) {
-                    // Simpan data secara permanen ke Firebase Database cloud
                     push(participantsRef, {
                         name: name.trim(),
                         option: optionName
                     });
-                    
                     backBtn.style.display = 'inline-block';
                 }
             }, 300);
         }
 
-        // Membaca data secara real-time dari Firebase
+        // Baca data real-time dari Firebase cloud
         onValue(participantsRef, (snapshot) => {
             const data = snapshot.val();
             if (!data) {
@@ -243,26 +249,27 @@
                 return;
             }
 
-            let tagsHTML = '<span>👥 Peserta yang ikut: </span>';
-            // Loop data object Firebase
+            visitorBar.innerHTML = '<span>👥 Peserta yang ikut: </span>';
             Object.keys(data).forEach((key) => {
                 const p = data[key];
-                tagsHTML += `
-                    <span class="visitor-tag">
-                        ${p.name} (${p.option})
-                        <button class="delete-btn" onclick="deleteParticipant('${key}')">×</button>
-                    </span>`;
+                
+                const tag = document.createElement('span');
+                tag.className = 'visitor-tag';
+                tag.textContent = `${p.name} (${p.option}) `;
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.textContent = '×';
+                delBtn.addEventListener('click', () => {
+                    if (confirm(`Hapus nama "${p.name}" dari daftar?`)) {
+                        remove(ref(db, `participants/${key}`));
+                    }
+                });
+                
+                tag.appendChild(delBtn);
+                visitorBar.appendChild(tag);
             });
-            visitorBar.innerHTML = tagsHTML;
         });
-
-        // Fungsi global untuk menghapus nama dari database cloud
-        window.deleteParticipant = function(key) {
-            if (confirm("Hapus nama ini dari daftar peserta?")) {
-                const itemRef = ref(db, `participants/${key}`);
-                remove(itemRef);
-            }
-        }
 
         // Tombol kembali
         backBtn.addEventListener('click', () => {
