@@ -61,7 +61,7 @@
             transform: scale(1.05);
             border-color: #ff4757;
         }
-        /* Sembunyikan foto sebelum kartu menu diklik */
+        /* Menyembunyikan foto sebelum kartu menu diklik */
         .card img {
             width: 100%;
             height: 150px;
@@ -88,19 +88,19 @@
         
         <!-- Pilihan 1: Pergi Makan -->
         <div class="card" onclick="showImage(this)">
-            <img src="makan.jpg" alt="Pergi Makan">
+            <img src="pergi makan.png" alt="Pergi Makan">
             <p>Pergi Makan 🍔</p>
         </div>
 
         <!-- Pilihan 2: Pergi Minum -->
         <div class="card" onclick="showImage(this)">
-            <img src="minum.jpg" alt="Pergi Minum">
+            <img src="MINUM.png" alt="Pergi Minum">
             <p>Pergi Minum 🥂</p>
         </div>
 
         <!-- Pilihan 3: Pergi Ngewe -->
         <div class="card" onclick="showImage(this)">
-            <img src="ngewe.jpg" alt="Pergi Ngewe">
+            <img src="NGEWE.webp" alt="Pergi Ngewe">
             <p>Pergi Ngewe 😈</p>
         </div>
 
@@ -116,7 +116,7 @@
             optionsMenu.style.display = 'flex';
         });
 
-        // Fungsi baru: Foto baru muncul setelah menu teksnya diklik
+        // Fungsi: Foto baru muncul setelah menu teksnya diklik
         function showImage(cardElement) {
             const img = cardElement.querySelector('img');
             img.style.display = 'block';
