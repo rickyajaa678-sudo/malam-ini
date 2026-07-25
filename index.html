@@ -260,7 +260,8 @@
                 const delBtn = document.createElement('button');
                 delBtn.className = 'delete-btn';
                 delBtn.textContent = '×';
-                delBtn.addEventListener('click', () => {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Mencegah memicu klik kartu di belakangnya
                     if (confirm(`Hapus nama "${p.name}" dari daftar?`)) {
                         remove(ref(db, `participants/${key}`));
                     }
