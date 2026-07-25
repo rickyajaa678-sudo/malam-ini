@@ -16,11 +16,34 @@
             min-height: 100vh;
             margin: 0;
             text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
         h1 {
             font-size: 2.5rem;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             letter-spacing: 2px;
+        }
+        /* Barisan Nama Peserta di Menu Awal */
+        .visitor-bar {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            max-width: 90%;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .visitor-tag {
+            background-color: #ff4757;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
         }
         .main-btn {
             background-color: #ff4757;
@@ -40,7 +63,7 @@
         }
         .options-container {
             display: none;
-            margin-top: 40px;
+            margin-top: 20px;
             gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
@@ -56,12 +79,12 @@
             border: 1px solid #333;
             cursor: pointer;
             transition: transform 0.2s;
+            position: relative;
         }
         .card:hover {
             transform: scale(1.05);
             border-color: #ff4757;
         }
-        /* Menyembunyikan foto sebelum kartu menu diklik */
         .card img {
             width: 100%;
             height: 150px;
@@ -70,16 +93,44 @@
             display: none; 
         }
         .card p {
-            padding: 15px;
+            padding: 15px 15px 5px 15px;
             margin: 0;
             font-weight: bold;
             font-size: 1.1rem;
+        }
+        /* Desain teks Budget */
+        .budget-text {
+            display: none;
+            padding: 0 15px 15px 15px;
+            margin: 0;
+            color: #ff4757;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        /* Tombol Kembali ke Awal */
+        .back-btn {
+            display: none;
+            margin-top: 30px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #444;
         }
     </style>
 </head>
 <body>
 
-    <!-- Tombol Utama -->
+    <!-- Bar Menu Awal untuk Daftar Nama Peserta yang Ikut -->
+    <div class="visitor-bar" id="visitorBar">
+        <span>👥 Peserta yang ikut: Belum ada</span>
+    </div>
+
+    <!-- Judul & Tombol Utama -->
     <h1 id="title">MALAM INI MAU KEMANA?</h1>
     <button class="main-btn" id="startBtn">KLIK DI SINI</button>
 
@@ -87,28 +138,39 @@
     <div class="options-container" id="optionsMenu">
         
         <!-- Pilihan 1: Pergi Makan -->
-        <div class="card" onclick="showImage(this)">
+        <div class="card" onclick="selectOption(this, 'Pergi Makan', 'Min. Budget: 100.000 Riel')">
             <img src="pergi makan.png" alt="Pergi Makan">
             <p>Pergi Makan 🍔</p>
+            <div class="budget-text">Min. Budget: 100.000 Riel</div>
         </div>
 
         <!-- Pilihan 2: Pergi Minum -->
-        <div class="card" onclick="showImage(this)">
+        <div class="card" onclick="selectOption(this, 'Pergi Minum', 'Budget: 250.000 - 300.000 Riel')">
             <img src="MINUM.png" alt="Pergi Minum">
             <p>Pergi Minum 🥂</p>
+            <div class="budget-text">Budget: 250.000 - 300.000 Riel</div>
         </div>
 
         <!-- Pilihan 3: Pergi Ngewe -->
-        <div class="card" onclick="showImage(this)">
+        <div class="card" onclick="selectOption(this, 'Pergi Ngewe', 'Min. Budget: 400.000 Riel')">
             <img src="NGEWE.webp" alt="Pergi Ngewe">
             <p>Pergi Ngewe 😈</p>
+            <div class="budget-text">Min. Budget: 400.000 Riel</div>
         </div>
 
     </div>
 
+    <!-- Tombol untuk reset kembali ke menu klik di sini -->
+    <button class="back-btn" id="backBtn">Pilih Lagi</button>
+
     <script>
         const startBtn = document.getElementById('startBtn');
         const optionsMenu = document.getElementById('optionsMenu');
+        const visitorBar = document.getElementById('visitorBar');
+        const backBtn = document.getElementById('backBtn');
+        
+        // Array untuk menyimpan daftar string nama dan pilihan mereka
+        let participants = [];
 
         // Fungsi saat tombol utama KLIK DI SINI ditekan
         startBtn.addEventListener('click', () => {
@@ -116,11 +178,58 @@
             optionsMenu.style.display = 'flex';
         });
 
-        // Fungsi: Foto baru muncul setelah menu teksnya diklik
-        function showImage(cardElement) {
+        // Fungsi saat salah satu kartu diklik
+        function selectOption(cardElement, optionName, budgetInfo) {
+            // Tampilkan foto dan info budget pada kartu yang diklik
             const img = cardElement.querySelector('img');
+            const budget = cardElement.querySelector('.budget-text');
             img.style.display = 'block';
+            budget.style.display = 'block';
+
+            // Jeda 300ms agar user bisa melihat foto & budget sebentar sebelum pop-up nama muncul
+            setTimeout(() => {
+                let name = prompt(`Anda memilih "${optionName}" (${budgetInfo}).\n\nWajib isi nama Anda untuk ikut:`);
+                
+                // Validasi agar nama tidak boleh kosong atau spasi doang
+                while (name !== null && name.trim() === "") {
+                    name = prompt("Nama tidak boleh kosong! Silakan masukkan nama Anda:");
+                }
+
+                if (name) {
+                    // Masukkan data ke daftar peserta
+                    participants.push(`${name.trim()} (${optionName})`);
+                    updateVisitorBar();
+                    
+                    // Tampilkan tombol untuk kembali pilih menu awal
+                    backBtn.style.display = 'inline-block';
+                }
+            }, 300);
         }
+
+        // Fungsi untuk memperbarui bar daftar nama di menu awal
+        function updateVisitorBar() {
+            if (participants.length === 0) {
+                visitorBar.innerHTML = '<span>👥 Peserta yang ikut: Belum ada</span>';
+            } else {
+                let tagsHTML = '<span>👥 Peserta yang ikut: </span>';
+                participants.forEach(p => {
+                    tagsHTML += `<span class="visitor-tag">${p}</span>`;
+                });
+                visitorBar.innerHTML = tagsHTML;
+            }
+        }
+
+        // Fungsi tombol kembali agar orang lain bisa klik bergantian
+        backBtn.addEventListener('click', () => {
+            // Sembunyikan menu dan reset tampilan kartu
+            optionsMenu.style.display = 'none';
+            backBtn.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+
+            // Reset gambar dan teks budget agar tersembunyi kembali untuk pengisi berikutnya
+            document.querySelectorAll('.card img').forEach(img => img.style.display = 'none');
+            document.querySelectorAll('.budget-text').forEach(b => b.style.display = 'none');
+        });
     </script>
 
 </body>
