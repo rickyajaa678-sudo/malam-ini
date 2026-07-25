@@ -7,7 +7,11 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
+            background-image: url('https://unsplash.com');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -18,15 +22,28 @@
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1;
+        }
+        .visitor-bar, h1, .main-btn, .options-container, .back-btn {
+            position: relative;
+            z-index: 2;
         }
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             letter-spacing: 2px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
         }
         .visitor-bar {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+            background-color: rgba(30, 30, 30, 0.85);
+            border: 1px solid #444;
             padding: 10px 20px;
             border-radius: 30px;
             margin-bottom: 30px;
@@ -37,6 +54,8 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .visitor-tag {
             background-color: #ff4757;
@@ -48,6 +67,7 @@
             align-items: center;
             gap: 8px;
             animation: popIn 0.3s ease forwards;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .delete-btn {
             background: none;
@@ -70,7 +90,7 @@
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6);
             transition: transform 0.2s, background-color 0.2s;
         }
         .main-btn:hover {
@@ -88,20 +108,21 @@
             animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         .card {
-            background-color: #1e1e1e;
+            background-color: rgba(30, 30, 30, 0.85);
             border-radius: 15px;
             overflow: hidden;
             width: 220px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            border: 1px solid #333;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+            border: 1px solid #444;
             cursor: pointer;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
             position: relative;
+            backdrop-filter: blur(5px);
         }
         .card:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: #ff4757;
-            box-shadow: 0 12px 24px rgba(255, 71, 87, 0.2);
+            box-shadow: 0 12px 24px rgba(255, 71, 87, 0.4);
         }
         .card img {
             width: 100%;
@@ -116,6 +137,7 @@
             margin: 0;
             font-weight: bold;
             font-size: 1.1rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
         .budget-text {
             display: none;
@@ -125,6 +147,7 @@
             font-weight: bold;
             font-size: 0.95rem;
             animation: fadeIn 0.4s ease forwards;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
         .back-btn {
             display: none;
@@ -192,9 +215,8 @@
         const visitorBar = document.getElementById('visitorBar');
         const backBtn = document.getElementById('backBtn');
 
-        // Menyiapkan file efek suara dari aset internet publik
-        const hornSound = new Audio('https://mixkit.co'); // Suara Trompet Kartun
-        const coinSound = new Audio('https://mixkit.co');   // Suara Koin Sukses
+        const hornSound = new Audio('https://mixkit.co'); 
+        const coinSound = new Audio('https://mixkit.co');   
 
         startBtn.addEventListener('click', () => {
             startBtn.style.display = 'none';
@@ -205,9 +227,8 @@
         updateVisitorDisplay();
 
         function triggerOption(cardElement, optionName, budgetInfo) {
-            // Mainkan suara trompet pesta saat menu ditekan
             hornSound.currentTime = 0;
-            hornSound.play().catch(e => console.log("Izin audio browser dibutuhkan"));
+            hornSound.play().catch(e => console.log("Menunggu interaksi pertama"));
 
             const img = cardElement.querySelector('img');
             const budget = cardElement.querySelector('.budget-text');
@@ -222,9 +243,8 @@
                 }
 
                 if (name) {
-                    // Mainkan suara koin sukses (ding!) saat input nama berhasil disimpan
                     coinSound.currentTime = 0;
-                    coinSound.play().catch(e => console.log("Izin audio browser dibutuhkan"));
+                    coinSound.play().catch(e => console.log("Menunggu interaksi pertama"));
 
                     participants.push({
                         name: name.trim(),
@@ -258,23 +278,3 @@
                     e.stopPropagation();
                     if (confirm(`Hapus nama "${p.name}" dari daftar?`)) {
                         participants.splice(index, 1);
-                        localStorage.setItem('malamIniParticipants', JSON.stringify(participants));
-                        updateVisitorDisplay();
-                    }
-                };
-                
-                tag.appendChild(delBtn);
-                visitorBar.appendChild(tag);
-            });
-        }
-
-        backBtn.addEventListener('click', () => {
-            optionsMenu.style.display = 'none';
-            backBtn.style.display = 'none';
-            startBtn.style.display = 'inline-block';
-            document.querySelectorAll('.card img').forEach(img => img.style.display = 'none');
-            document.querySelectorAll('.card .budget-text').forEach(b => b.style.display = 'none');
-        });
-    </script>
-</body>
-</html>
