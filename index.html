@@ -37,6 +37,7 @@
             gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
         }
         .visitor-tag {
             background-color: #ff4757;
@@ -44,6 +45,21 @@
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0 2px;
+        }
+        .delete-btn:hover {
+            color: #121212;
         }
         .main-btn {
             background-color: #ff4757;
@@ -98,7 +114,6 @@
             font-weight: bold;
             font-size: 1.1rem;
         }
-        /* Desain teks Budget */
         .budget-text {
             display: none;
             padding: 0 15px 15px 15px;
@@ -107,7 +122,6 @@
             font-weight: bold;
             font-size: 0.95rem;
         }
-        /* Tombol Kembali ke Awal */
         .back-btn {
             display: none;
             margin-top: 30px;
@@ -127,7 +141,7 @@
 
     <!-- Bar Menu Awal untuk Daftar Nama Peserta yang Ikut -->
     <div class="visitor-bar" id="visitorBar">
-        <span>👥 Peserta yang ikut: Belum ada</span>
+        <span>👥 Peserta yang ikut: Memuat data...</span>
     </div>
 
     <!-- Judul & Tombol Utama -->
@@ -160,77 +174,104 @@
 
     </div>
 
-    <!-- Tombol untuk reset kembali ke menu klik di sini -->
     <button class="back-btn" id="backBtn">Pilih Lagi</button>
 
-    <script>
+    <!-- Import Firebase Modules dari CDN -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getDatabase, ref, push, onValue, remove } from "https://gstatic.com";
+
+        // Konfigurasi Firebase sesuai data milik Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_l7yr43VChZHOTAUSFUgmqpQzApwQFWM",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://firebasedatabase.app",
+            projectId: "malam-ini-4cd0f",
+            storageBucket: "://appspot.com",
+            messagingSenderId: "787128930003",
+            appId: "1:787128930003:web:fb89b68607d62710f94e26",
+            measurementId: "G-T5D9TS30YP"
+        };
+
+        // Inisialisasi Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const participantsRef = ref(db, 'participants');
+
         const startBtn = document.getElementById('startBtn');
         const optionsMenu = document.getElementById('optionsMenu');
         const visitorBar = document.getElementById('visitorBar');
         const backBtn = document.getElementById('backBtn');
-        
-        // Array untuk menyimpan daftar string nama dan pilihan mereka
-        let participants = [];
 
-        // Fungsi saat tombol utama KLIK DI SINI ditekan
+        // Tampilkan pilihan menu awal
         startBtn.addEventListener('click', () => {
             startBtn.style.display = 'none';
             optionsMenu.style.display = 'flex';
         });
 
-        // Fungsi saat salah satu kartu diklik
-        function selectOption(cardElement, optionName, budgetInfo) {
-            // Tampilkan foto dan info budget pada kartu yang diklik
+        // Handler klik opsi menu
+        window.selectOption = function(cardElement, optionName, budgetInfo) {
             const img = cardElement.querySelector('img');
             const budget = cardElement.querySelector('.budget-text');
             img.style.display = 'block';
             budget.style.display = 'block';
 
-            // Jeda 300ms agar user bisa melihat foto & budget sebentar sebelum pop-up nama muncul
             setTimeout(() => {
                 let name = prompt(`Anda memilih "${optionName}" (${budgetInfo}).\n\nWajib isi nama Anda untuk ikut:`);
                 
-                // Validasi agar nama tidak boleh kosong atau spasi doang
                 while (name !== null && name.trim() === "") {
                     name = prompt("Nama tidak boleh kosong! Silakan masukkan nama Anda:");
                 }
 
                 if (name) {
-                    // Masukkan data ke daftar peserta
-                    participants.push(`${name.trim()} (${optionName})`);
-                    updateVisitorBar();
+                    // Simpan data secara permanen ke Firebase Database cloud
+                    push(participantsRef, {
+                        name: name.trim(),
+                        option: optionName
+                    });
                     
-                    // Tampilkan tombol untuk kembali pilih menu awal
                     backBtn.style.display = 'inline-block';
                 }
             }, 300);
         }
 
-        // Fungsi untuk memperbarui bar daftar nama di menu awal
-        function updateVisitorBar() {
-            if (participants.length === 0) {
+        // Membaca data secara real-time dari Firebase
+        onValue(participantsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
                 visitorBar.innerHTML = '<span>👥 Peserta yang ikut: Belum ada</span>';
-            } else {
-                let tagsHTML = '<span>👥 Peserta yang ikut: </span>';
-                participants.forEach(p => {
-                    tagsHTML += `<span class="visitor-tag">${p}</span>`;
-                });
-                visitorBar.innerHTML = tagsHTML;
+                return;
+            }
+
+            let tagsHTML = '<span>👥 Peserta yang ikut: </span>';
+            // Loop data object Firebase
+            Object.keys(data).forEach((key) => {
+                const p = data[key];
+                tagsHTML += `
+                    <span class="visitor-tag">
+                        ${p.name} (${p.option})
+                        <button class="delete-btn" onclick="deleteParticipant('${key}')">×</button>
+                    </span>`;
+            });
+            visitorBar.innerHTML = tagsHTML;
+        });
+
+        // Fungsi global untuk menghapus nama dari database cloud
+        window.deleteParticipant = function(key) {
+            if (confirm("Hapus nama ini dari daftar peserta?")) {
+                const itemRef = ref(db, `participants/${key}`);
+                remove(itemRef);
             }
         }
 
-        // Fungsi tombol kembali agar orang lain bisa klik bergantian
+        // Tombol kembali
         backBtn.addEventListener('click', () => {
-            // Sembunyikan menu dan reset tampilan kartu
             optionsMenu.style.display = 'none';
             backBtn.style.display = 'none';
             startBtn.style.display = 'inline-block';
-
-            // Reset gambar dan teks budget agar tersembunyi kembali untuk pengisi berikutnya
             document.querySelectorAll('.card img').forEach(img => img.style.display = 'none');
             document.querySelectorAll('.budget-text').forEach(b => b.style.display = 'none');
         });
     </script>
-
 </body>
 </html>
