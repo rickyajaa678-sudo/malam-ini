@@ -54,12 +54,20 @@
             width: 220px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
             border: 1px solid #333;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
+        .card:hover {
+            transform: scale(1.05);
+            border-color: #ff4757;
+        }
+        /* Sembunyikan foto sebelum kartu menu diklik */
         .card img {
             width: 100%;
             height: 150px;
             object-fit: cover;
             background-color: #333;
+            display: none; 
         }
         .card p {
             padding: 15px;
@@ -75,23 +83,23 @@
     <h1 id="title">MALAM INI MAU KEMANA?</h1>
     <button class="main-btn" id="startBtn">KLIK DI SINI</button>
 
-    <!-- Kontainer Pilihan (Muncul setelah diklik) -->
+    <!-- Kontainer Pilihan -->
     <div class="options-container" id="optionsMenu">
         
         <!-- Pilihan 1: Pergi Makan -->
-        <div class="card">
+        <div class="card" onclick="showImage(this)">
             <img src="makan.jpg" alt="Pergi Makan">
             <p>Pergi Makan 🍔</p>
         </div>
 
         <!-- Pilihan 2: Pergi Minum -->
-        <div class="card">
+        <div class="card" onclick="showImage(this)">
             <img src="minum.jpg" alt="Pergi Minum">
             <p>Pergi Minum 🥂</p>
         </div>
 
         <!-- Pilihan 3: Pergi Ngewe -->
-        <div class="card">
+        <div class="card" onclick="showImage(this)">
             <img src="ngewe.jpg" alt="Pergi Ngewe">
             <p>Pergi Ngewe 😈</p>
         </div>
@@ -102,12 +110,17 @@
         const startBtn = document.getElementById('startBtn');
         const optionsMenu = document.getElementById('optionsMenu');
 
+        // Fungsi saat tombol utama KLIK DI SINI ditekan
         startBtn.addEventListener('click', () => {
-            // Sembunyikan tombol klik setelah ditekan
             startBtn.style.display = 'none';
-            // Tampilkan pilihan lampiran foto & teks
             optionsMenu.style.display = 'flex';
         });
+
+        // Fungsi baru: Foto baru muncul setelah menu teksnya diklik
+        function showImage(cardElement) {
+            const img = cardElement.querySelector('img');
+            img.style.display = 'block';
+        }
     </script>
 
 </body>
