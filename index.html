@@ -135,7 +135,7 @@
             background-color: #444;
         }
     </style>
-    <!-- Script Firebase Versi CDN Pendukung Eksternal Aman -->
+    <!-- Firebase SDK Klasik -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 </head>
@@ -171,18 +171,17 @@
     <button class="back-btn" id="backBtn">Pilih Lagi</button>
 
     <script>
-        // Konfigurasi Menggunakan Alamat URL Bersih Standar Global 
+        // Menggunakan alamat database original asia-southeast1 yang valid
         const firebaseConfig = {
             apiKey: "AIzaSyA_l7yr43VChZHOTAUSFUgmqpQzApwQFWM",
             authDomain: "://firebaseapp.com",
-            databaseURL: "https://firebaseio.com",
+            databaseURL: "https://firebasedatabase.app",
             projectId: "malam-ini-4cd0f",
             storageBucket: "://appspot.com",
             messagingSenderId: "787128930003",
             appId: "1:787128930003:web:fb89b68607d62710f94e26"
         };
 
-        // Mulai Koneksi Database
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const participantsRef = database.ref('participants');
@@ -192,7 +191,6 @@
         const visitorBar = document.getElementById('visitorBar');
         const backBtn = document.getElementById('backBtn');
 
-        // Navigasi Tampilan Tombol
         startBtn.addEventListener('click', () => {
             startBtn.style.display = 'none';
             optionsMenu.style.display = 'flex';
@@ -221,7 +219,6 @@
             }, 300);
         }
 
-        // Sinkronisasi Mengalir Dua Arah Secara Real-time
         participantsRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) {
@@ -250,10 +247,6 @@
                 tag.appendChild(delBtn);
                 visitorBar.appendChild(tag);
             });
-        }, (error) => {
-            // Jika ada hambatan koneksi, sistem akan otomatis beralih menggunakan cadangan lokal browser
-            console.log("Koneksi cloud tertunda, mengaktifkan sistem lokal backup.");
-            visitorBar.innerHTML = '<span>👥 Peserta yang ikut: Belum ada</span>';
         });
 
         backBtn.addEventListener('click', () => {
